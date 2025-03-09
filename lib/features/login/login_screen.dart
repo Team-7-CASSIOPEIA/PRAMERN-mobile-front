@@ -23,7 +23,7 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.fingerprint, size: 50, color: Colors.black54),
+                    Image.asset('assets/images/pramern-logo.png', width: 50, height: 50),
                     const SizedBox(height: 10),
                     Text(
                       'PRAMERN',
