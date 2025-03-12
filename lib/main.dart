@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pramern_mobile_front/features/home/home_screen.dart';
+import 'package:pramern_mobile_front/features/login/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +17,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Text('Hi!'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginScreen(),
+        '/home': (context) => HomeScreen(),
+      },
     );
   }
 }
