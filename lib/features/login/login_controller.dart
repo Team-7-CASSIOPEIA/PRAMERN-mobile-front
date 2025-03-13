@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginController with ChangeNotifier {
   bool _isPasswordVisible = false;
@@ -29,7 +30,7 @@ class LoginController with ChangeNotifier {
     // Reset loading state
     setLoading(true);
 
-    final String apiUrl = 'http://localhost:3000/auth/login';
+    final String apiUrl = '${dotenv.env['API_URL']}/auth/login';  // Adjust API URL
 
     try {
       // Validate input before making API call

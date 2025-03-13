@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pramern_mobile_front/features/home/home_controller.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -97,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String getPicture(String path) {
-    return path.isNotEmpty ? "http://localhost:3000$path" : "No Image";
+    return path.isNotEmpty ? "${dotenv.env['API_URL']}$path" : "No Image";
   }
 
   List<Map<String, dynamic>> get filteredTasks {
@@ -260,7 +261,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTaskCard(Map<String, dynamic> task) {
     final bool isCompleted = task['status'] == 'เสร็จสิ้น';
-    final Color statusColor = isCompleted ? Colors.green : const Color(0xFF7367F0);
     final bool isPending = task['status'] == 'ยังไม่ดำเนินการ';
 
     return GestureDetector(
