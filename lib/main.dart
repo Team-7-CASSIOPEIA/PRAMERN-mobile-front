@@ -5,7 +5,7 @@ import 'package:pramern_mobile_front/features/login/login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: 'assets/.env');
+  await dotenv.load(fileName: '../dotenv');
   runApp(const MyApp());
 }
 
