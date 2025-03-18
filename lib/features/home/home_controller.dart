@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HomeController {
 
@@ -11,7 +12,7 @@ class HomeController {
     
     if (userId == null || accessToken == null) return null;
 
-    final String apiUrl = 'http://localhost:3000/api/user/$userId';  // Adjust API URL
+    final String apiUrl = '${dotenv.env['API_URL']}/api/user/$userId';  // Adjust API URL
 
     try {
       final response = await http.get(
@@ -30,9 +31,6 @@ class HomeController {
           'last_name': data['user_lname'] ?? '',
           'profile_picture': data['user_img'] ?? '',
         };
-      } else {
-        print('Failed to load user data');
-        return null;
       }
     } catch (e) {
       print(e);
