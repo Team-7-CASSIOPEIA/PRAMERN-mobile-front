@@ -12,7 +12,7 @@ class HomeController {
     
     if (userId == null || accessToken == null) return null;
 
-    final String apiUrl = '${dotenv.env['API_URL']}/api/user/$userId';  // Adjust API URL
+    final String apiUrl = '${dotenv.env['API_URL']}/api/user/$userId';
 
     try {
       final response = await http.get(
@@ -36,5 +36,11 @@ class HomeController {
       print(e);
       return null;
     }
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_id');
+    await prefs.remove('accessToken');
   }
 }

@@ -43,10 +43,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Center(
                         child: Column(
                           children: [
-                            Icon(
-                              Icons.fingerprint,
-                              size: 60,
-                              color: Colors.black87,
+                            Image.asset(
+                              'assets/images/pramern-logo.png',
+                              width: 100,
+                              height: 100,
                             ),
                             const SizedBox(height: 8),
                             Text(
