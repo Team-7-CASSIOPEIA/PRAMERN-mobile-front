@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:pramern_mobile_front/features/home/home_controller.dart';
-import 'package:pramern_mobile_front/features/form/form_screen.dart';
+import 'package:pramern/features/home/home_controller.dart';
+import 'package:pramern/features/form/form_screen.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,12 +19,40 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedTab = 0;
   bool isLoading = true;
   List<Map<String, dynamic>> allTasks = [];
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    _loadBannerAd();
     loadUserData();
     fetchEvaluationTasks();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: dotenv.env['ANDROID_BANNER_AD_UNIT_ID']!,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (Ad ad) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (Ad ad, LoadAdError error) {
+          ad.dispose();
+          debugPrint('Ad failed to load: $error');
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   Future<void> loadUserData() async {
@@ -41,6 +70,13 @@ class _HomeScreenState extends State<HomeScreen> {
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+  void _handleLogout() async {
+    await _homeController.logout();
+
+    if (!mounted) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
   Future<void> fetchEvaluationTasks() async {
@@ -90,63 +126,80 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF7367F0)))
-            : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    _buildProfileHeader(),
-                    const SizedBox(height: 24),
-                    _buildTabBar(),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: RefreshIndicator(
-                        color: const Color(0xFF7367F0),
-                        onRefresh: () async {
-                          await fetchEvaluationTasks();
-                        },
-                        child: filteredTasks.isEmpty
-                            ? _buildEmptyState()
-                            : ListView.builder(
-                                physics: const AlwaysScrollableScrollPhysics(
-                                  parent: BouncingScrollPhysics(),
-                                ),
-                                itemCount: filteredTasks.length,
-                                itemBuilder: (context, index) {
-                                  return _buildTaskCard(filteredTasks[index]);
-                                },
-                              ),
+        child: Column(
+          children: [
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator(color: Color(0xFF7367F0)))
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          _buildProfileHeader(),
+                          const SizedBox(height: 24),
+                          _buildTabBar(),
+                          const SizedBox(height: 16),
+                          Expanded(
+                            child: RefreshIndicator(
+                              color: const Color(0xFF7367F0),
+                              onRefresh: () async {
+                                await fetchEvaluationTasks();
+                              },
+                              child: filteredTasks.isEmpty
+                                  ? _buildEmptyState()
+                                  : ListView.builder(
+                                      physics: const AlwaysScrollableScrollPhysics(
+                                        parent: BouncingScrollPhysics(),
+                                      ),
+                                      itemCount: filteredTasks.length,
+                                      itemBuilder: (context, index) {
+                                        return _buildTaskCard(filteredTasks[index]);
+                                      },
+                                    ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+            ),
+            if (_isAdLoaded && _bannerAd != null)
+              Container(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
               ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildProfileHeader() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        CircleAvatar(
-          radius: 25,
-          backgroundImage:
-              profilePicture != "No Image" && profilePicture.isNotEmpty
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 25,
+              backgroundImage: profilePicture != "No Image" && profilePicture.isNotEmpty
                   ? NetworkImage(profilePicture)
-                  : const AssetImage('assets/images/person-placeholder.png')
-                      as ImageProvider,
+                  : const AssetImage('assets/images/person-placeholder.png') as ImageProvider,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              firstName.isNotEmpty ? "$firstName $lastName" : "ชื่อ นามสกุล",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            firstName.isNotEmpty ? "$firstName $lastName" : "ชื่อ นามสกุล",
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
-          ),
+        IconButton(
+          icon: const Icon(Icons.logout, color: Colors.red),
+          onPressed: _handleLogout,
+          tooltip: 'Logout',
         ),
       ],
     );

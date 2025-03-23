@@ -30,7 +30,7 @@ class LoginController with ChangeNotifier {
     // Reset loading state
     setLoading(true);
 
-    final String apiUrl = '${dotenv.env['API_URL']}/auth/login';  // Adjust API URL
+    final String apiUrl = '${dotenv.env['API_URL']}/auth/login';
 
     try {
       // Validate input before making API call

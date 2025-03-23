@@ -11,8 +11,7 @@ class HomeController {
 
     if (userId == null || accessToken == null) return null;
 
-    final String apiUrl =
-        '${dotenv.env['API_URL']}/api/user/$userId'; // Adjust API URL
+    final String apiUrl = '${dotenv.env['API_URL']}/api/user/$userId';
 
     try {
       final response = await http.get(

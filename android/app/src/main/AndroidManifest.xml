@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="pramern_mobile_front"
+        android:label="pramern"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.ca-app-pub-6733537697183236~8173156995"
+            android:value="ca-app-pub-6733537697183236~8173156995"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

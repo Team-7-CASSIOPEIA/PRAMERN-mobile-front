@@ -1,6 +1,6 @@
-name: pramern_mobile_front
-description: "A new Flutter project."
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+name: pramern
+description: "Pramern Mobile Application"
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
@@ -14,12 +14,20 @@ dependencies:
   http: ^0.13.3
   shared_preferences: ^2.5.2
   flutter_dotenv: ^5.0.2
+  google_mobile_ads: ^5.3.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - dotenv
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/pramern-logo.png"
