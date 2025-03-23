@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pramern/features/home/home_controller.dart';
+import 'package:pramern/features/form/form_screen.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -81,52 +82,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchEvaluationTasks() async {
     setState(() => isLoading = true);
     try {
-      // Simulated API response (as per your original code)
-      await Future.delayed(const Duration(milliseconds: 800));
-      final fetchedTasks = [
-        {
-          'title': 'ประเมินรอบครั้งที่ 1/2567',
-          'status': 'ยังไม่ดำเนินการ',
-          'person': 'บรรจงธรรม โชคชัย',
-          'daysLeft': 6,
-          'id': '1'
-        },
-        {
-          'title': 'ประเมินรอบครั้งที่ 1/2567',
-          'status': 'เสร็จสิ้น',
-          'person': 'บรรจงธรรม โชคชัย',
-          'daysLeft': 6,
-          'id': '2'
-        },
-        {
-          'title': 'ประเมินรอบครั้งที่ 1/2567',
-          'status': 'ยังไม่ดำเนินการ',
-          'person': 'บรรจงธรรม โชคชัย',
-          'daysLeft': 6,
-          'id': '3'
-        },
-        {
-          'title': 'ประเมินรอบครั้งที่ 1/2567',
-          'status': 'เสร็จสิ้น',
-          'person': 'บรรจงธรรม โชคชัย',
-          'daysLeft': 6,
-          'id': '4'
-        },
-      ];
+      setState(() async {
+        final tasks = await _homeController.fetchEvaluationData();
 
-      setState(() {
-        allTasks = fetchedTasks;
+        allTasks = tasks ?? [];
         isLoading = false;
       });
-
-      // Commenting out the actual API call to avoid errors
-      /*
-      final tasks = await _homeController.fetchEvaluationTasks();
-      setState(() {
-        allTasks = tasks;
-        isLoading = false;
-      });
-      */
     } catch (e) {
       debugPrint('Error fetching evaluation tasks: $e');
       setState(() => isLoading = false);
@@ -139,18 +100,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Map<String, dynamic>> get filteredTasks {
     if (selectedTab == 1) {
-      return allTasks.where((task) => task['status'] == 'เสร็จสิ้น').toList();
+      return allTasks
+          .where((task) => task['assign_status'] == 'complete')
+          .toList();
     } else if (selectedTab == 2) {
       return allTasks;
     }
-    return allTasks.where((task) => task['status'] == 'ยังไม่ดำเนินการ').toList();
+    return allTasks
+        .where((task) => task['assign_status'] == 'incomplete')
+        .toList();
   }
 
-  void _onTaskTap(Map<String, dynamic> task) {
-    debugPrint('Tapped on task: ${task['id']}');
-    // Example navigation (commented out to avoid errors):
-    // Navigator.push(context, MaterialPageRoute(builder: (context) => TaskDetailScreen(taskId: task['id'])));
-  }
+ void _onTaskTap(Map<String, dynamic> task) {
+  debugPrint('Tapped on task: ${task['eval_template_id']}');
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => FormScreen(formId: task['eval_template_id'], assignId: task['assign_id'], assigneeId: task['assignee_id']),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +234,9 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(24),
           child: Ink(
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF7367F0) : const Color(0xFFEEEEEE),
+              color: isSelected
+                  ? const Color(0xFF7367F0)
+                  : const Color(0xFFEEEEEE),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Container(
@@ -298,7 +269,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.assignment_outlined, size: 60, color: Colors.grey[400]),
+              Icon(Icons.assignment_outlined,
+                  size: 60, color: Colors.grey[400]),
               const SizedBox(height: 16),
               Text(
                 'ไม่มีรายการประเมิน${selectedTab == 0 ? "ที่ยังไม่ดำเนินการ" : selectedTab == 1 ? "ที่เสร็จสิ้น" : ""}',
@@ -316,11 +288,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTaskCard(Map<String, dynamic> task) {
-    final bool isCompleted = task['status'] == 'เสร็จสิ้น';
-    final bool isPending = task['status'] == 'ยังไม่ดำเนินการ';
+    final bool isCompleted = task['assign_status'] == 'complete';
+    final bool isPending = task['assign_status'] == 'incomplete';
 
     return GestureDetector(
-      onTap: () => _onTaskTap(task),
+      onTap: () => {
+        if(isPending) {
+          _onTaskTap(task)
+        }
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
@@ -340,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                task['title'],
+                task['eval_name'],
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -356,29 +332,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Expanded(
                     child: Text(
-                      task['person'],
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      task['assignee'],
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black87),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Text(
-                    'ระยะเวลาที่เหลือ: ',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
-                  Text(
-                    '${task['daysLeft']} วัน',
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                ],
-              ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: isCompleted
                       ? Colors.green.withOpacity(0.1)
@@ -388,7 +353,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  task['status'],
+                  isCompleted
+                      ? 'เสร็จสิ้น'
+                      : isPending
+                          ? 'ยังไม่ดำเนินการ'
+                          : 'ไม่ทราบสถานะ',
                   style: TextStyle(
                     color: isCompleted
                         ? Colors.green
