@@ -44,18 +44,16 @@ class FormController {
     final String apiUrl = '${dotenv.env['API_URL']}/api/sent-assignment/$assignId?assignee_id=$assigneeId'; 
 
     try {
+    final Map<String, dynamic> requestBody = {'data': formData};
 
 
-      final String jsonBody = jsonEncode(formData);
-      debugPrint('Form Data: $jsonBody');
+    final String jsonBody = jsonEncode(requestBody);
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
           'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/x-www-form-urlencoded',        },
-        body: {
-          'data': jsonBody
-        },
+          'Content-Type': 'application/json',        },
+        body: jsonBody,
       );
 
       if (response.statusCode == 200) {

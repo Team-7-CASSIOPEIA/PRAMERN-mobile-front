@@ -117,6 +117,51 @@ class _FormScreenState extends State<FormScreen> {
     return isValid;
   }
 
+  // เพิ่มฟังก์ชันนี้ใน _FormScreenState หรือที่ที่เหมาะสม
+  List<Map<String, dynamic>> formatSectionsData() {
+    return sections.map<Map<String, dynamic>>((section) {
+      return {
+        '_id': section['_id'],
+        'title': section['fs_name'],
+        'description': section['fs_description'],
+        'isCalulate': section['fs_is_calculate'],
+        'isVisibleOnHistory': section['fs_is_visible_on_history'],
+        'formula': section['fs_formula'],
+        'score': section['fs_score'],
+        'questions': (section['question_id'] as List)
+            .map<Map<String, dynamic>>((question) {
+          return {
+            'id': question['_id'],
+            'question': question['qt_name'],
+            'type': question['qt_type'],
+            'answer': question['answer'] ?? "",
+            'required': question['qt_required'],
+            'kpi_id': question['kpi_id'],
+            'choicesAll': question['qt_choices'] != null
+                ? (question['qt_choices'] as List)
+                    .map<String>((choice) => choice['qt_choice'])
+                    .toList()
+                : [],
+            'gridRows': question['qt_row'] != null
+                ? (question['qt_row'] as List).map<Map<String, dynamic>>((row) {
+                    return {
+                      'row': row is String ? row : row['name'],
+                      'selected': row is String ? null : row['selected'],
+                    };
+                  }).toList()
+                : [],
+            'gridColumns': question['qt_column'] != null
+                ? (question['qt_column'] as List)
+                    .map<Map<String, dynamic>>((column) {
+                    return {'name': column['name'], 'value': column['value']};
+                  }).toList()
+                : [],
+          };
+        }).toList(),
+      };
+    }).toList();
+  }
+
   void submitEvaluationForm() async {
     if (validateForm()) {
       try {
@@ -126,11 +171,10 @@ class _FormScreenState extends State<FormScreen> {
         final prefs = await SharedPreferences.getInstance();
         final String? userId = prefs.getString('user_id');
 
+        final formattedSections = formatSectionsData();
+
         // สร้างข้อมูลที่จะส่งไป API
-        final assignData = {
-          'user_id': userId,
-          'sections': sections
-        };
+        final assignData = {'user_id': userId, 'sections': formattedSections};
 
         // ส่งข้อมูลไปยัง API
         final success = await _formController.submitForm(
@@ -152,7 +196,8 @@ class _FormScreenState extends State<FormScreen> {
 
           // รอสักครู่แล้วกลับไปหน้าก่อนหน้า
           Future.delayed(const Duration(milliseconds: 800), () {
-            Navigator.of(context).pop();
+            Navigator.pushNamedAndRemoveUntil(
+                context, '/home', (route) => false);
           });
         } else {
           // แสดงข้อความผิดพลาด

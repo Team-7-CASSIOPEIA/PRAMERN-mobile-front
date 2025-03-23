@@ -46,8 +46,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchEvaluationTasks() async {
     setState(() => isLoading = true);
     try {
-      final tasks = await _homeController.fetchEvaluationData();
-      setState(() {
+      setState(() async {
+        final tasks = await _homeController.fetchEvaluationData();
+
         allTasks = tasks ?? [];
         isLoading = false;
       });
