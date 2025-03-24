@@ -34,6 +34,7 @@ class HomeController {
       print(e);
       return null;
     }
+    return null;
   }
 
   Future<List<Map<String, dynamic>>?> fetchEvaluationData() async {
@@ -44,7 +45,7 @@ class HomeController {
     if (userId == null || accessToken == null) return null;
 
     final String apiUrl =
-        '${dotenv.env['API_URL']}/api/assigns/$userId'; // Adjust API URL
+        '${dotenv.env['API_URL']}/api/assigns/$userId';
 
     try {
       final response = await http.get(
@@ -84,12 +85,17 @@ class HomeController {
 
         return assignItems;
       } else {
-        // Handle the case where the response status is not 200
         return [];
       }
     } catch (e) {
       print(e);
       return [];
     }
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_id');
+    await prefs.remove('accessToken');
   }
 }

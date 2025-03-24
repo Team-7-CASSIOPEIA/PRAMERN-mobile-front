@@ -1,0 +1,1 @@
+/Users/smart/CODE/PRAMERN-mobile-front/android/app/build/intermediates/cxx/RelWithDebInfo/6f336b2f/obj/arm64-v8a

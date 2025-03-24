@@ -1,0 +1,2 @@
+/Users/smart/CODE/PRAMERN-mobile-front/android/app/.cxx/Debug/2h1a491p/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/smart/CODE/PRAMERN-mobile-front/android/app/.cxx/Debug/2h1a491p/armeabi-v7a/CMakeFiles/rebuild_cache.dir

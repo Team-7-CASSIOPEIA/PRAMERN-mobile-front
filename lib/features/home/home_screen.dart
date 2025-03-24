@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .toList();
   }
 
- void _onTaskTap(Map<String, dynamic> task) {
+  void _onTaskTap(Map<String, dynamic> task) {
   debugPrint('Tapped on task: ${task['eval_template_id']}');
   Navigator.push(
     context,
@@ -165,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
             ),
             if (_isAdLoaded && _bannerAd != null)
-              Container(
+              SizedBox(
                 width: _bannerAd!.size.width.toDouble(),
                 height: _bannerAd!.size.height.toDouble(),
                 child: AdWidget(ad: _bannerAd!),
